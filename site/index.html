@@ -3,88 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Learn RAG Wiki</title>
+<title>Ask the RAG Wiki</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="layout">
-  <nav class="sidebar">
-    <div class="sidebar-header"><a href="index.html">Learn RAG Wiki</a></div>
-    <input type="text" id="search-box" placeholder="Search wiki...">
-    <div id="search-results"></div>
-    <div id="nav-tree"><h3>Core Concepts</h3><ul>
-<li><a href="rag-overview.html">RAG Overview</a></li>
-<li><a href="rag-pipeline-architecture.html">RAG Pipeline Architecture</a></li>
-<li><a href="rag-types.html">RAG Types</a></li>
-<li><a href="agentic-rag.html">Agentic RAG</a></li>
-<li><a href="graph-based-rag.html">Graph-Based RAG</a></li>
-<li><a href="rag-vs-fine-tuning.html">RAG vs Fine-Tuning</a></li>
-<li><a href="cag-and-mag.html">CAG and MAG</a></li>
-</ul>
-<h3>Retrieval</h3><ul>
-<li><a href="embeddings.html">Embeddings</a></li>
-<li><a href="vector-databases.html">Vector Databases</a></li>
-<li><a href="vector-indexing.html">Vector Indexing</a></li>
-<li><a href="hybrid-retrieval.html">Hybrid Retrieval</a></li>
-<li><a href="reranking.html">Reranking</a></li>
-<li><a href="chunking-strategies.html">Chunking Strategies</a></li>
-</ul>
-<h3>Production</h3><ul>
-<li><a href="production-scaling.html">Production Scaling</a></li>
-<li><a href="rag-evaluation.html">RAG Evaluation</a></li>
-<li><a href="rag-failure-modes.html">RAG Failure Modes</a></li>
-<li><a href="hallucination.html">Hallucination</a></li>
-<li><a href="observability.html">Observability</a></li>
-<li><a href="latency-optimization.html">Latency Optimization</a></li>
-<li><a href="cost-optimization.html">Cost Optimization</a></li>
-</ul>
-<h3>Implementation</h3><ul>
-<li><a href="langchain-rag.html">LangChain RAG</a></li>
-</ul></div>
-  </nav>
-  <main class="content">
-    <article>
-<h1 id="wiki-index">Wiki Index</h1>
-<p><strong>Summary</strong>: Table of contents for the Learn RAG wiki.</p>
-<p><strong>Last updated</strong>: 2026-07-04</p>
-<hr />
-<h2 id="core-concepts">Core Concepts</h2>
-<ul>
-<li><a class="wikilink" href="rag-overview.html">rag-overview</a> — What RAG is, how AI systems have progressed, and common challenges</li>
-<li><a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a> — The 12 core components of a production RAG system</li>
-<li><a class="wikilink" href="rag-types.html">rag-types</a> — 10+ RAG architecture patterns from Standard to Agentic, with tradeoffs</li>
-<li><a class="wikilink" href="agentic-rag.html">agentic-rag</a> — Active, adaptive RAG with 7 architecture variants (Router, Adaptive, Corrective, etc.)</li>
-<li><a class="wikilink" href="graph-based-rag.html">graph-based-rag</a> — Stateful, branching pipelines; Graph RAG and Hybrid RAG architectures</li>
-<li><a class="wikilink" href="rag-vs-fine-tuning.html">rag-vs-fine-tuning</a> — When to choose RAG, fine-tuning, or a hybrid approach</li>
-<li><a class="wikilink" href="cag-and-mag.html">cag-and-mag</a> — CAG (Cache-Augmented Generation) and MAG (Memory-Augmented Generation) paradigms</li>
-</ul>
-<h2 id="retrieval">Retrieval</h2>
-<ul>
-<li><a class="wikilink" href="embeddings.html">embeddings</a> — How text becomes vectors, static vs contextual embeddings, solving semantic ambiguity</li>
-<li><a class="wikilink" href="vector-databases.html">vector-databases</a> — Chroma, Pinecone, Milvus, Qdrant, Faiss, Weaviate compared</li>
-<li><a class="wikilink" href="vector-indexing.html">vector-indexing</a> — HNSW, IVF, PQ, and TurboQuant/TurboWek for training-free indexing</li>
-<li><a class="wikilink" href="hybrid-retrieval.html">hybrid-retrieval</a> — Combining BM25 keyword search with semantic vector search</li>
-<li><a class="wikilink" href="reranking.html">reranking</a> — Reordering retrieved results to push the most relevant to the top</li>
-<li><a class="wikilink" href="chunking-strategies.html">chunking-strategies</a> — 15+ chunking types, early vs late chunking, and choosing the right technique</li>
-</ul>
-<h2 id="production">Production</h2>
-<ul>
-<li><a class="wikilink" href="production-scaling.html">production-scaling</a> — Scaling RAG for real users: parallel processing, separation of concerns, auto-scaling</li>
-<li><a class="wikilink" href="rag-evaluation.html">rag-evaluation</a> — Faithfulness, context relevance, RAGAS, LLM-as-judge, regression testing</li>
-<li><a class="wikilink" href="rag-failure-modes.html">rag-failure-modes</a> — 10 specific ways RAG systems fail and how to prevent each</li>
-<li><a class="wikilink" href="hallucination.html">hallucination</a> — Causes, detection, mitigation, and architectural solutions (Corrective/Self-Reflective RAG)</li>
-<li><a class="wikilink" href="observability.html">observability</a> — Span-level tracing, model drift detection, and governance</li>
-<li><a class="wikilink" href="latency-optimization.html">latency-optimization</a> — Root causes of latency and strategies to cut response time by 2-5x</li>
-<li><a class="wikilink" href="cost-optimization.html">cost-optimization</a> — Prompt caching, model routing, semantic caching, and team best practices</li>
-</ul>
-<h2 id="implementation">Implementation</h2>
-<ul>
-<li><a class="wikilink" href="langchain-rag.html">langchain-rag</a> — LangChain and LangGraph implementation reference for RAG pipelines</li>
-</ul>
-    </article>
-  </main>
-</div>
-<script src="search-data.js"></script>
-<script src="app.js"></script>
+  <div class="qa-page">
+    <header class="qa-header">
+      <h1>Ask the RAG Wiki</h1>
+      <p class="qa-sub">Ask a question about Retrieval-Augmented Generation. Answers are pulled straight from the wiki content below &mdash; no external AI, just search over what's already written here.</p>
+    </header>
+    <form id="qa-form" class="qa-form" autocomplete="off">
+      <input type="text" id="qa-input" placeholder="e.g. What is hybrid retrieval?" autocomplete="off">
+      <button type="submit">Ask</button>
+    </form>
+    <div id="qa-results"></div>
+  </div>
+  <script src="qa-data.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
