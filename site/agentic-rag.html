@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic RAG — Learn RAG Wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page">
+    <a class="back-link" href="index.html">&larr; Ask a question</a>
+    <article>
+<h1 id="agentic-rag">Agentic RAG</h1>
+<p><strong>Summary</strong>: Agentic RAG moves beyond passive document retrieval by introducing reasoning, planning, memory, and multi-agent coordination into the RAG pipeline. It transforms RAG from a simple lookup into an active, adaptive workflow.</p>
+<p><strong>Sources</strong>: RAG Primer.docx, Agentic_RAG_Architecture_1741260286.pdf, RAG Cheatsheet.pdf, RAG Types.pdf</p>
+<p><strong>Last updated</strong>: 2026-07-04</p>
+<hr />
+<h2 id="traditional-rag-vs-agentic-rag">Traditional RAG vs Agentic RAG</h2>
+<p><strong>Traditional RAG</strong> is passive and static — "You ask, I fetch" (source: RAG Primer.docx):
+- User sends a query -&gt; vector search -&gt; top documents picked -&gt; handed to LLM -&gt; generation
+- Works for FAQ bots or simple text processing from PDFs
+- Static and passive</p>
+<p><strong>Agentic RAG</strong> is active and adaptive (source: RAG Primer.docx):
+- Brings actual reasoning and planning into the loop
+- An agent can rephrase queries, look deeper, summarize chunks before proceeding
+- Multiple agents work together: one to search, one to verify, one to answer, one to reflect
+- Can say "this answer doesn't look correct, let me keep retrying"</p>
+<blockquote>
+<p>"Traditional RAG is a lookup; Agentic RAG is a workflow" (source: RAG Primer.docx)</p>
+</blockquote>
+<h2 id="key-capabilities">Key Capabilities</h2>
+<p>Agentic RAG adds these capabilities beyond traditional RAG (source: RAG Primer.docx):</p>
+<ul>
+<li><strong>Memory</strong> — Remembers the last conversation and prior context</li>
+<li><strong>Conditional Logic</strong> — Knows when to stop, when to ask again, when to escalate</li>
+<li><strong>Query Rewriting</strong> — Rephrases queries for better retrieval</li>
+<li><strong>Multi-step Retrieval</strong> — Goes beyond single-pass retrieval</li>
+<li><strong>Recovery Logic</strong> — Retries and fallback strategies</li>
+<li><strong>Reflection</strong> — Evaluates whether its own answers are correct</li>
+</ul>
+<h2 id="where-traditional-rag-breaks">Where Traditional RAG Breaks</h2>
+<p>Traditional RAG feels fine until you need (source: RAG Primer.docx):
+- Multi-step retrieval
+- Query rewriting
+- <a class="wikilink" href="reranking.html">Reranking</a>
+- Memory
+- Recovery logic</p>
+<p>That is where linear pipelines start collapsing. See also <a class="wikilink" href="graph-based-rag.html">graph-based-rag</a>.</p>
+<h2 id="7-agentic-rag-architectures">7 Agentic RAG Architectures</h2>
+<p>Agentic RAG is not a single pattern but a family of architectures (source: Agentic_RAG_Architecture_1741260286.pdf):</p>
+<h3 id="1-agentic-rag-router">1. Agentic RAG Router</h3>
+<p>Routes user queries to appropriate tools or data sources. The Retrieval Agent evaluates query intent and type, then a Router dispatches to Vector Search, Web Search, Recommendation System, or Text-to-SQL as needed (source: Agentic_RAG_Architecture_1741260286.pdf).</p>
+<h3 id="2-query-planning-agentic-rag">2. Query Planning Agentic RAG</h3>
+<p>Handles complex queries by breaking them into parallelizable subqueries across diverse data sources. A Query Planner interprets the query, generates prompts for downstream query engines, and synthesizes results into a coherent answer (source: Agentic_RAG_Architecture_1741260286.pdf).</p>
+<h3 id="3-adaptive-rag">3. Adaptive RAG</h3>
+<p>A Query Analyzer classifies queries by complexity and routes them to the appropriate path: direct LLM (no retrieval), single-step retrieval, or multi-step reasoning chain. Includes self-reflection and hallucination checking (source: Agentic_RAG_Architecture_1741260286.pdf).</p>
+<p>See <a class="wikilink" href="rag-types.html">rag-types</a> for more detail on Adaptive RAG.</p>
+<h3 id="4-corrective-rag">4. Corrective RAG</h3>
+<p>Self-corrects retrieval results. A Retrieval Evaluator assigns confidence scores; low-confidence results trigger web searches for augmentation. Uses a Decompose-Then-Recompose algorithm to extract key info while filtering irrelevant content (source: Agentic_RAG_Architecture_1741260286.pdf).</p>
+<h3 id="5-self-reflective-rag">5. Self-Reflective RAG</h3>
+<p>Uses special "reflection tokens" to decide when retrieval is needed and to evaluate output quality. The system can critique its own response, trigger query rewrites, and restart the process if the answer is unsatisfactory (source: Agentic_RAG_Architecture_1741260286.pdf).</p>
+<h3 id="6-speculative-rag">6. Speculative RAG</h3>
+<p>A smaller specialist LM generates multiple answer drafts in parallel from different document subsets, then a larger generalist LM verifies the best draft. Achieves up to 12.97% accuracy improvement and 51% latency reduction (source: Agentic_RAG_Architecture_1741260286.pdf).</p>
+<h3 id="7-self-route-agentic-rag">7. Self-Route Agentic RAG</h3>
+<p>Autonomously determines the best retrieval path. If a query is answerable with given context, it processes immediately. Otherwise, it routes to a long-context model with additional context. Balances cost-efficiency with accuracy (source: Agentic_RAG_Architecture_1741260286.pdf).</p>
+<h2 id="key-features-of-agentic-rag">Key Features of Agentic RAG</h2>
+<p>Beyond traditional RAG, agentic systems offer (source: Agentic_RAG_Architecture_1741260286.pdf):
+- <strong>AI Agents</strong> — Autonomous agents performing complex tasks beyond simple query handling
+- <strong>Dynamic Query Handling</strong> — Adjustments based on user queries for complex, nuanced questions
+- <strong>Enhanced Problem-Solving</strong> — Agents navigate multiple documents, compare info, generate summaries
+- <strong>Tool Utilization</strong> — Integration with databases, APIs, web search, recommendation systems
+- <strong>Continuous Learning</strong> — Adapts strategies based on feedback and new data
+- <strong>Improved Accuracy</strong> — Combining retrieval with generation reduces errors</p>
+<h2 id="engineering-principles">Engineering Principles</h2>
+<p>Agentic RAG is where real AI engineering comes in — not just prompts, but systems with (source: RAG Primer.docx):
+- Memory and state
+- Limits and boundaries
+- Fallback options
+- Responsibility by design</p>
+<p>"We're no longer testing for intelligence; we're designing for responsibility" (source: RAG Primer.docx).</p>
+<h2 id="related-pages">Related Pages</h2>
+<ul>
+<li><a class="wikilink" href="rag-overview.html">rag-overview</a></li>
+<li><a class="wikilink" href="rag-types.html">rag-types</a></li>
+<li><a class="wikilink" href="graph-based-rag.html">graph-based-rag</a></li>
+<li><a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a></li>
+<li><a class="wikilink" href="hallucination.html">hallucination</a></li>
+<li><a class="wikilink" href="rag-failure-modes.html">rag-failure-modes</a></li>
+<li><a class="wikilink" href="production-scaling.html">production-scaling</a></li>
+</ul>
+    </article>
+  </div>
+</body>
+</html>

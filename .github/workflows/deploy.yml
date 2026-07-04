@@ -20,6 +20,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build deps
+        run: pip install markdown
+
+      - name: Build static site from wiki/
+        run: python3 build.py .
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -31,11 +42,10 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy "$SERVICE" \
-            --source=. \
+            --source=./site \
             --region="$REGION" \
             --project="${{ secrets.GCP_PROJECT_ID }}" \
             --allow-unauthenticated \
-            --set-env-vars="WIKI_FEEDBACK_TOKEN=${{ secrets.WIKI_FEEDBACK_GH_TOKEN }},GITHUB_REPO=pkmariya/learn-rag" \
             --quiet
 
       - name: Print live URL

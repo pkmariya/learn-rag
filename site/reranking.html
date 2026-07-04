@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reranking — Learn RAG Wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page">
+    <a class="back-link" href="index.html">&larr; Ask a question</a>
+    <article>
+<h1 id="reranking">Reranking</h1>
+<p><strong>Summary</strong>: Reranking is the process of reordering retrieved documents to push the most relevant results to the top. It bridges the gap between initial retrieval and final context assembly, removing noise before it reaches the LLM.</p>
+<p><strong>Sources</strong>: RAG Primer.docx</p>
+<p><strong>Last updated</strong>: 2026-07-04</p>
+<hr />
+<h2 id="why-reranking">Why Reranking?</h2>
+<p>Raw retrieval results are not enough. Initial retrieval (whether keyword, semantic, or hybrid) returns candidates that are related to the query but not necessarily the most relevant. Reranking ensures only the most relevant context reaches the LLM (source: RAG Primer.docx).</p>
+<p>Retrieval quality matters more than model size — and reranking is a key lever for improving that quality (source: RAG Primer.docx).</p>
+<h2 id="how-reranking-works">How Reranking Works</h2>
+<p>After initial retrieval returns candidates, a reranker scores each candidate more carefully against the query (source: RAG Primer.docx):</p>
+<ol>
+<li>Initial retrieval returns top-k candidates</li>
+<li>A cross-encoder or LLM-based reranker evaluates each candidate against the query</li>
+<li>Results are reordered by relevance score</li>
+<li>Only the top results proceed to context assembly</li>
+</ol>
+<h2 id="reranking-methods">Reranking Methods</h2>
+<p>Methods mentioned in the source (source: RAG Primer.docx):
+- <strong>Cross-encoder rerankers</strong> — Score query-document pairs together for higher accuracy
+- <strong>LLM rerankers</strong> — Use an LLM to judge relevance
+- <strong>Cohere Rerank</strong> — A specific reranking service, recommended for financial RAG</p>
+<h2 id="reciprocal-rank-fusion-rrf">Reciprocal Rank Fusion (RRF)</h2>
+<p>When combining results from multiple retrieval systems (e.g., <a class="wikilink" href="hybrid-retrieval.html">hybrid-retrieval</a>), RRF merges ranked lists by computing a combined score based on each result's rank across the different systems (source: RAG Primer.docx).</p>
+<h2 id="latency-vs-accuracy-tradeoff">Latency vs Accuracy Tradeoff</h2>
+<p>Reranking adds a processing step, which increases latency. However (source: RAG Primer.docx):
+- The overhead is typically small compared to LLM generation time
+- It reduces the amount of irrelevant context sent to the LLM, which can actually reduce generation latency
+- For high-stakes applications (finance, legal), the accuracy gain justifies the cost</p>
+<p>Unnecessary reranking should be avoided when <a class="wikilink" href="latency-optimization.html">latency</a> is the primary concern and retrieval quality is already sufficient (source: RAG Primer.docx).</p>
+<h2 id="related-pages">Related Pages</h2>
+<ul>
+<li><a class="wikilink" href="hybrid-retrieval.html">hybrid-retrieval</a></li>
+<li><a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a></li>
+<li><a class="wikilink" href="latency-optimization.html">latency-optimization</a></li>
+<li><a class="wikilink" href="rag-evaluation.html">rag-evaluation</a></li>
+</ul>
+    </article>
+  </div>
+</body>
+</html>

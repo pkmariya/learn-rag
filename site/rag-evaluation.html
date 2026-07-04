@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Evaluation — Learn RAG Wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page">
+    <a class="back-link" href="index.html">&larr; Ask a question</a>
+    <article>
+<h1 id="rag-evaluation">RAG Evaluation</h1>
+<p><strong>Summary</strong>: RAG evaluation goes beyond simple accuracy to measure faithfulness, context relevance, answer relevance, and retrieval quality. Without proper evaluation, hallucinations slip into production even when retrieval looks perfect.</p>
+<p><strong>Sources</strong>: RAG Primer.docx</p>
+<p><strong>Last updated</strong>: 2026-07-04</p>
+<hr />
+<h2 id="why-evaluation-matters">Why Evaluation Matters</h2>
+<p>If you do not measure it, you cannot trust it (source: RAG Primer.docx). Production RAG is about reliability, not demos. Automated and human feedback loops are essential.</p>
+<h2 id="key-metrics">Key Metrics</h2>
+<p>Evaluation metrics for production RAG systems (source: RAG Primer.docx):</p>
+<ul>
+<li><strong>Faithfulness</strong> — Are the claims in the generated answer supported by the retrieved passages?</li>
+<li><strong>Context Relevance</strong> — Was the retrieved context actually relevant to the question?</li>
+<li><strong>Answer Relevance</strong> — Does the answer address the question?</li>
+<li><strong>Recall@K</strong> — Of all relevant documents, how many were retrieved?</li>
+<li><strong>Precision@K</strong> — Of the retrieved documents, how many were relevant?</li>
+<li><strong>MRR (Mean Reciprocal Rank)</strong> — How high is the first relevant result?</li>
+<li><strong>nDCG (Normalized Discounted Cumulative Gain)</strong> — Quality of the ranking order</li>
+</ul>
+<h2 id="faithfulness-vs-context-relevance">Faithfulness vs Context Relevance</h2>
+<p>A common trap: faithfulness of 0.83 means 83% of the generated answer is grounded in the retrieved context. That sounds good, but it tells you nothing about whether the retrieved context was the <em>right</em> context (source: RAG Primer.docx).</p>
+<p>The retrieval step may pull documents that are related but not actually relevant. The model then generates a faithful answer — faithfully based on the wrong documents (source: RAG Primer.docx).</p>
+<p>To debug this, evaluate context relevance and answer relevance separately, not just faithfulness. If context relevance is low, the <a class="wikilink" href="chunking-strategies.html">chunking strategy</a> or <a class="wikilink" href="embeddings.html">embedding model</a> is the culprit. If context relevance is fine but answer relevance is low, it is a generation/prompt issue (source: RAG Primer.docx).</p>
+<h2 id="evaluation-techniques">Evaluation Techniques</h2>
+<h3 id="1-ragas-framework">1. RAGAS Framework</h3>
+<p>Metrics like faithfulness check whether claims in the generated answer are supported by retrieved passages. Flags potential <a class="wikilink" href="hallucination.html">hallucination</a> when the model introduces facts not present in context (source: RAG Primer.docx).</p>
+<h3 id="2-llm-as-a-judge">2. LLM-as-a-Judge</h3>
+<p>Provide the question, retrieved context, and generated answer to another LLM. Ask it to evaluate whether the answer is supported by the evidence. The judge looks for unsupported claims and reasoning outside the provided documents (source: RAG Primer.docx).</p>
+<h3 id="3-attribution-and-citations">3. Attribution and Citations</h3>
+<p>Require the model to generate answers with citations or supporting spans from retrieved chunks. Makes it easier to verify whether each part of the answer is grounded in the source (source: RAG Primer.docx).</p>
+<h3 id="4-human-evaluation">4. Human Evaluation</h3>
+<p>Automated metrics help scale evaluation, but periodic human review is still important to validate real-world answer quality (source: RAG Primer.docx).</p>
+<h3 id="5-regression-testing">5. Regression Testing</h3>
+<p>Maintain a benchmark set of questions with expected grounded answers. Every time the retrieval pipeline, prompts, or models change, run these tests to ensure the system has not silently degraded (source: RAG Primer.docx).</p>
+<h2 id="evaluation-frameworks">Evaluation Frameworks</h2>
+<p>Tools for benchmarking and iterating (source: RAG Primer.docx):
+- <strong>RAGAS</strong> — Retrieval Augmented Generation Assessment
+- <strong>Grouse</strong> — Grounded evaluation
+- <strong>DeepEval</strong> — Deep evaluation metrics</p>
+<h2 id="cross-channel-consistency">Cross-Channel Consistency</h2>
+<p>For enterprise chatbots that give different answers across channels, evaluation should include cross-channel consistency tests using golden questions and tracking semantic similarity of responses (source: RAG Primer.docx).</p>
+<h2 id="related-pages">Related Pages</h2>
+<ul>
+<li><a class="wikilink" href="hallucination.html">hallucination</a></li>
+<li><a class="wikilink" href="observability.html">observability</a></li>
+<li><a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a></li>
+<li><a class="wikilink" href="hybrid-retrieval.html">hybrid-retrieval</a></li>
+</ul>
+    </article>
+  </div>
+</body>
+</html>

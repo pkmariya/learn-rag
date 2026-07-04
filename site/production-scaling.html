@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production Scaling — Learn RAG Wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page">
+    <a class="back-link" href="index.html">&larr; Ask a question</a>
+    <article>
+<h1 id="production-scaling">Production Scaling</h1>
+<p><strong>Summary</strong>: A RAG pipeline that works on a laptop often dies with real users. Production-grade RAG requires separation of concerns — models, API, databases, and tools all scaling independently — plus strategies like parallel processing, semantic caching, and infrastructure as code.</p>
+<p><strong>Sources</strong>: RAG architecture.txt, RAG Primer.docx</p>
+<p><strong>Last updated</strong>: 2026-07-04</p>
+<hr />
+<h2 id="the-core-principle">The Core Principle</h2>
+<p>The secret is separation. Your models, your API, your databases, your tools — all independent, all scaling on their own. That's production-grade RAG (source: RAG architecture.txt).</p>
+<h2 id="testing-for-production">Testing for Production</h2>
+<p>Before deploying, mix 95% garbage data with your real documents. If your pipeline can still find the right answers in all that noise, you know it's solid (source: RAG architecture.txt).</p>
+<h2 id="key-architecture-patterns">Key Architecture Patterns</h2>
+<h3 id="1-parallel-document-processing">1. Parallel Document Processing</h3>
+<p>Process documents in parallel, not one by one. Tools like Ray let you parse thousands of files across multiple machines at the same time (source: RAG architecture.txt).</p>
+<h3 id="2-vector-search-knowledge-graph">2. Vector Search + Knowledge Graph</h3>
+<p>Don't use vector search alone. Combine it with a knowledge graph. Vectors give you semantic meaning; the graph gives you relationships between entities. Run both at the same time (source: RAG architecture.txt).</p>
+<p>See <a class="wikilink" href="graph-based-rag.html">graph-based-rag</a> and <a class="wikilink" href="hybrid-retrieval.html">hybrid-retrieval</a> for implementation patterns.</p>
+<h3 id="3-separate-llm-from-api-server">3. Separate LLM from API Server</h3>
+<p>Never put your LLM inside your API server. Host your model separately using something like vLLM and Ray Serve so they scale based on GPU demand without killing your web server (source: RAG architecture.txt).</p>
+<h3 id="4-polyglot-persistence-multiple-databases">4. Polyglot Persistence (Multiple Databases)</h3>
+<p>Use multiple databases, each for what it's best at (source: RAG architecture.txt):
+- One for chat history
+- One for caching
+- One for vectors (see <a class="wikilink" href="vector-databases.html">vector-databases</a>)
+- One for entity relationships (knowledge graph)</p>
+<p>One database can't do everything well.</p>
+<h3 id="5-semantic-caching">5. Semantic Caching</h3>
+<p>If two users ask the same question in different words, recognize it's the same intent and serve a cached answer. Zero GPU cost for repeat queries (source: RAG architecture.txt).</p>
+<p>See <a class="wikilink" href="cost-optimization.html">cost-optimization</a> for more caching strategies.</p>
+<h3 id="6-intelligent-agent-design">6. Intelligent Agent Design</h3>
+<p>Use something like LangGraph to build a state machine where the agent can plan, decide if it needs to search, run code, or answer directly. It can loop and correct itself instead of just going retrieve-then-answer (source: RAG architecture.txt).</p>
+<p>See <a class="wikilink" href="agentic-rag.html">agentic-rag</a> and <a class="wikilink" href="graph-based-rag.html">graph-based-rag</a> for agentic pipeline architectures.</p>
+<h3 id="7-sandbox-code-execution">7. Sandbox Code Execution</h3>
+<p>If your agent can execute code, sandbox it. No network access, limited memory, hard timeout. One bad prompt shouldn't take down your system (source: RAG architecture.txt).</p>
+<h3 id="8-infrastructure-as-code">8. Infrastructure as Code</h3>
+<p>Define your entire cloud infrastructure as code using tools like Terraform. Don't click buttons in a console (source: RAG architecture.txt).</p>
+<h3 id="9-auto-scale-to-zero">9. Auto-Scale to Zero</h3>
+<p>Use something like Karpenter to scale to zero. When nobody's using it, kill the GPU machines automatically. When traffic comes back, spin them up in seconds. Only pay for what you use (source: RAG architecture.txt).</p>
+<h2 id="production-checklist">Production Checklist</h2>
+<p>From RAG architecture.txt and RAG Primer.docx:</p>
+<ul>
+<li>[ ] Documents processed in parallel (Ray or equivalent)</li>
+<li>[ ] LLM hosted separately from API server</li>
+<li>[ ] Vector search combined with knowledge graph</li>
+<li>[ ] Separate databases for separate concerns</li>
+<li>[ ] Semantic caching for repeated queries</li>
+<li>[ ] Agent can loop and self-correct (not linear)</li>
+<li>[ ] Code execution sandboxed</li>
+<li>[ ] Infrastructure defined as code</li>
+<li>[ ] Auto-scaling to zero when idle</li>
+<li>[ ] <a class="wikilink" href="observability.html">observability</a> spans on every pipeline stage</li>
+<li>[ ] <a class="wikilink" href="rag-evaluation.html">rag-evaluation</a> running on production traffic</li>
+</ul>
+<h2 id="related-pages">Related Pages</h2>
+<ul>
+<li><a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a></li>
+<li><a class="wikilink" href="cost-optimization.html">cost-optimization</a></li>
+<li><a class="wikilink" href="latency-optimization.html">latency-optimization</a></li>
+<li><a class="wikilink" href="observability.html">observability</a></li>
+<li><a class="wikilink" href="agentic-rag.html">agentic-rag</a></li>
+<li><a class="wikilink" href="vector-databases.html">vector-databases</a></li>
+</ul>
+    </article>
+  </div>
+</body>
+</html>

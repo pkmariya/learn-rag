@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vector Indexing — Learn RAG Wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page">
+    <a class="back-link" href="index.html">&larr; Ask a question</a>
+    <article>
+<h1 id="vector-indexing">Vector Indexing</h1>
+<p><strong>Summary</strong>: Vector indexes are the data structures that make similarity search fast over large embedding collections. The dominant index type today is FAISS/IVF, which requires training on your data before use. TurboQuant, a Google research breakthrough, eliminates this requirement through random rotation of vectors.</p>
+<p><strong>Sources</strong>: vector index.txt, RAG Primer.docx</p>
+<p><strong>Last updated</strong>: 2026-07-04</p>
+<hr />
+<h2 id="why-vector-indexes-matter">Why Vector Indexes Matter</h2>
+<p>Raw brute-force similarity search over millions of vectors is too slow for production. Vector indexes trade small accuracy losses for dramatic speed gains. The choice of index directly impacts retrieval latency, memory usage, and whether the index needs rebuilding as data changes (source: RAG Primer.docx).</p>
+<p>See <a class="wikilink" href="vector-databases.html">vector-databases</a> for database-level comparisons (Chroma, Pinecone, etc.). This page focuses on the underlying index algorithms.</p>
+<h2 id="common-index-types">Common Index Types</h2>
+<p>From RAG Primer.docx:</p>
+<table>
+<thead>
+<tr>
+<th>Index Type</th>
+<th>Approach</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HNSW</strong> (Hierarchical Navigable Small World)</td>
+<td>Graph-based proximity navigation</td>
+<td>Fast queries, good recall</td>
+<td>High memory usage</td>
+</tr>
+<tr>
+<td><strong>IVF</strong> (Inverted File Index)</td>
+<td>Cluster-based partitioning</td>
+<td>Scalable, lower memory</td>
+<td>Requires training on data</td>
+</tr>
+<tr>
+<td><strong>PQ</strong> (Product Quantization)</td>
+<td>Vector compression</td>
+<td>Very low memory</td>
+<td>Lower accuracy</td>
+</tr>
+<tr>
+<td><strong>FAISS</strong></td>
+<td>Facebook's IVF+PQ implementation</td>
+<td>Industry standard, GPU support</td>
+<td>Needs training step</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-faiss-training-problem">The FAISS Training Problem</h2>
+<p>FAISS (and IVF-based indexes generally) cannot search anything until they study your data first (source: vector index.txt):</p>
+<ol>
+<li>Sample your documents</li>
+<li>Group them into clusters</li>
+<li>Build a lookup structure from clusters</li>
+<li>Only then can you start searching</li>
+</ol>
+<p>If your data grows or shifts significantly, you may need to redo the entire process (source: vector index.txt).</p>
+<h2 id="turboquant-training-free-indexing">TurboQuant: Training-Free Indexing</h2>
+<p>Google Research published TurboQuant, which discovered that applying a random rotation to document vectors before compressing them makes their statistical distribution predictable. The math can figure out the shape of your data without ever seeing it (source: vector index.txt).</p>
+<h3 id="how-turboquantturbowek-works">How TurboQuant/TurboWek Works</h3>
+<ul>
+<li><strong>Random rotation</strong> makes vector distributions predictable regardless of the actual data</li>
+<li><strong>No training required</strong> — add a document and it gets indexed immediately</li>
+<li><strong>No rebuild needed</strong> — corpus can grow or shift without rebuilding the index</li>
+<li><strong>Aggressive compression</strong> — 10 million document embeddings go from 31GB down to 4GB (source: vector index.txt)</li>
+</ul>
+<h3 id="implementation">Implementation</h3>
+<p>TurboWek (the implementation of TurboQuant) is built in Rust with Python wrappers already available for LangChain, LlamaIndex, and Haystack (source: vector index.txt).</p>
+<h2 id="index-selection-guidelines">Index Selection Guidelines</h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommended Index</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prototype / small data (&lt;100K docs)</td>
+<td>Flat (brute force)</td>
+<td>Simple, exact results</td>
+</tr>
+<tr>
+<td>Medium scale, high recall needed</td>
+<td>HNSW</td>
+<td>Best accuracy-speed tradeoff</td>
+</tr>
+<tr>
+<td>Large scale, memory constrained</td>
+<td>IVF+PQ (FAISS)</td>
+<td>Proven, scalable</td>
+</tr>
+<tr>
+<td>Rapidly growing/changing corpus</td>
+<td>TurboQuant/TurboWek</td>
+<td>No rebuild needed</td>
+</tr>
+<tr>
+<td>Very large scale + low memory</td>
+<td>TurboQuant</td>
+<td>8x compression ratio</td>
+</tr>
+</tbody>
+</table>
+<h2 id="related-pages">Related Pages</h2>
+<ul>
+<li><a class="wikilink" href="vector-databases.html">vector-databases</a></li>
+<li><a class="wikilink" href="embeddings.html">embeddings</a></li>
+<li><a class="wikilink" href="latency-optimization.html">latency-optimization</a></li>
+<li><a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a></li>
+</ul>
+    </article>
+  </div>
+</body>
+</html>

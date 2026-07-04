@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hallucination — Learn RAG Wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page">
+    <a class="back-link" href="index.html">&larr; Ask a question</a>
+    <article>
+<h1 id="hallucination">Hallucination</h1>
+<p><strong>Summary</strong>: Hallucination is when an AI model generates information that sounds convincing but is incorrect, made up, or unsupported by facts. It occurs because the model predicts the most likely next words instead of verifying truth. Detecting and minimizing hallucinations is essential for reliable production AI.</p>
+<p><strong>Sources</strong>: RAG Primer.docx, RAG failure situations.pdf, Agentic_RAG_Architecture_1741260286.pdf</p>
+<p><strong>Last updated</strong>: 2026-07-04</p>
+<hr />
+<h2 id="what-is-hallucination">What is Hallucination?</h2>
+<p>Hallucination occurs when an LLM generates information that sounds convincing but is actually incorrect, made up, or unsupported by facts. It happens because the model predicts the most likely next words instead of verifying the truth (source: RAG Primer.docx).</p>
+<p>An LLM can read the right documents and still confidently generate information that is not present in the context. So evaluation needs to focus on grounding, not just retrieval (source: RAG Primer.docx).</p>
+<h2 id="why-rag-systems-still-hallucinate">Why RAG Systems Still Hallucinate</h2>
+<p>Even with correct documents in the knowledge base, RAG chatbots can hallucinate because (source: RAG Primer.docx):
+- Retrieved context may be related but not actually relevant to the question
+- The model generates a faithful answer based on the <em>wrong</em> documents
+- The prompt does not instruct the model to be selective about which parts of context to use</p>
+<h2 id="techniques-for-reducing-hallucination">Techniques for Reducing Hallucination</h2>
+<p>Five approaches, each suited to different scenarios (source: RAG Primer.docx):</p>
+<ol>
+<li><strong>Better Prompting</strong> — Instruct the model to only use provided context, cite sources, and say "I don't know" when appropriate</li>
+<li><strong>RAG</strong> — Ground responses in retrieved external knowledge</li>
+<li><strong>Fine-tuning</strong> — Train the model on domain-specific data</li>
+<li><strong>Function Calling</strong> — Use structured tool outputs rather than free-form generation</li>
+<li><strong>Guardrails</strong> — Post-processing validation and safety checks</li>
+</ol>
+<h2 id="measuring-hallucination">Measuring Hallucination</h2>
+<p>Key evaluation approaches (source: RAG Primer.docx):</p>
+<ul>
+<li><strong>Faithfulness metrics (RAGAS)</strong> — Check if claims are supported by retrieved passages</li>
+<li><strong>LLM-as-a-Judge</strong> — Use a stronger model to evaluate grounding</li>
+<li><strong>Attribution/Citations</strong> — Require the model to cite supporting spans</li>
+<li><strong>Human evaluation</strong> — Periodic review for real-world quality</li>
+<li><strong>Regression testing</strong> — Benchmark set of questions with expected answers</li>
+</ul>
+<p>See <a class="wikilink" href="rag-evaluation.html">rag-evaluation</a> for detailed evaluation strategies.</p>
+<h2 id="validation-and-guardrails">Validation and Guardrails</h2>
+<p>Production RAG systems need a validation layer (source: RAG Primer.docx):
+- Check grounding of generated answers
+- Detect hallucinations
+- Block unsafe outputs
+- Post-process for formatting, safety, and citations</p>
+<h2 id="designing-for-i-dont-know">Designing for "I Don't Know"</h2>
+<p>A well-designed system should admit when it does not have an answer rather than generating misleading information. This requires designing the system architecture, not just the prompt, to handle out-of-scope queries gracefully (source: RAG Primer.docx).</p>
+<h2 id="architectural-solutions-to-hallucination">Architectural Solutions to Hallucination</h2>
+<p>Several <a class="wikilink" href="rag-types.html">RAG architecture variants</a> are specifically designed to combat hallucination:</p>
+<ul>
+<li><strong>Corrective RAG</strong> — Grades retrieved documents for relevance; falls back to web search when confidence is low. Uses a Decompose-Then-Recompose algorithm to filter irrelevant content (source: Agentic_RAG_Architecture_1741260286.pdf).</li>
+<li><strong>Self-Reflective RAG</strong> — Uses reflection tokens to evaluate output quality, with hallucination checks before delivering answers. Can trigger query rewrites and restart the process (source: Agentic_RAG_Architecture_1741260286.pdf).</li>
+<li><strong>Adaptive RAG</strong> — Includes self-reflection steps that iteratively check if answers meet requirements and detect inaccuracies (source: Agentic_RAG_Architecture_1741260286.pdf).</li>
+</ul>
+<p>Domain mismatch is a particularly common cause of hallucination: if the knowledge base covers medical data but the user asks about cricket, the system may fabricate answers rather than admitting ignorance (source: RAG failure situations.pdf). See <a class="wikilink" href="rag-failure-modes.html">rag-failure-modes</a> for all 10 failure cases.</p>
+<h2 id="related-pages">Related Pages</h2>
+<ul>
+<li><a class="wikilink" href="rag-evaluation.html">rag-evaluation</a></li>
+<li><a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a></li>
+<li><a class="wikilink" href="observability.html">observability</a></li>
+<li><a class="wikilink" href="agentic-rag.html">agentic-rag</a></li>
+<li><a class="wikilink" href="rag-types.html">rag-types</a></li>
+<li><a class="wikilink" href="rag-failure-modes.html">rag-failure-modes</a></li>
+</ul>
+    </article>
+  </div>
+</body>
+</html>
