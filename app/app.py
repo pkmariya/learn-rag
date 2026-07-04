@@ -29,7 +29,7 @@ i you me my your""".split())
 
 GITHUB_TOKEN = os.environ.get("WIKI_FEEDBACK_TOKEN", "")
 GITHUB_REPO = os.environ.get("GITHUB_REPO", "pkmariya/learn-rag")
-SCORE_THRESHOLD = float(os.environ.get("SCORE_THRESHOLD", "1.5"))
+SCORE_THRESHOLD = float(os.environ.get("SCORE_THRESHOLD", "1.8"))
 APP_TITLE = "Ask Mariya's Wiki anything about RAG"
 
 app = Flask(__name__)
@@ -149,10 +149,23 @@ def score_chunk(q_tokens, idf, chunk):
         if t in STOPWORDS or len(t) < 2:
             continue
         w = idf.get(t, 0.15)
-        text_matches = len(re.findall(r"\b" + re.escape(t) + r"\b", text_lower))
-        heading_bonus = 2 if t in heading_lower else 0
-        title_bonus = 1 if t in title_lower else 0
-        score += (text_matches + heading_bonus + title_bonus) * w
+        count = len(re.findall(r"\b" + re.escape(t) + r"\b", text_lower))
+        # Log-damped term frequency: a section that repeats the term in a
+        # dense bullet list (e.g. "Standard RAG... Corrective RAG...
+        # Fusion RAG...") shouldn't out-rank a section that actually
+        # explains the term once or twice in plain prose.
+        term_component = math.log1p(count) if count else 0.0
+        heading_bonus = 4 if t in heading_lower else 0
+        title_bonus = 2 if t in title_lower else 0
+        score += (term_component + heading_bonus + title_bonus) * w
+    base = score
+    # Prefer canonical definitional sections ("Overview" / "What is X?")
+    # once a chunk already has *some* real relevance -- people expect a
+    # definition to live in a page's intro, not wherever the term happens
+    # to be repeated most. Gated on a minimum base score so this doesn't
+    # rescue chunks that only mention the term in passing.
+    if base >= 1.2 and (heading_lower == "overview" or heading_lower.startswith("what is")):
+        score += 2.5
     return score / math.sqrt(len(chunk["text"]) / 200 + 1)
 
 
@@ -213,15 +226,7 @@ def index():
         scored, q_tokens = rank(question)
         top = scored[:5]
         best_score = top[0][0] if top else 0
-        # For queries that reduce to a single meaningful word (e.g. "what is
-        # RAG?", "what is chunking?"), rank() already requires that word to
-        # actually appear in the chunk -- that's strong enough evidence on
-        # its own. Don't also apply the absolute score threshold, which is
-        # calibrated for multi-term queries and unfairly penalizes very
-        # common single words (like "rag" itself) that are deliberately
-        # down-weighted by idf for being ubiquitous.
-        single_term_query = len(set(q_tokens)) <= 1
-        if not top or (not single_term_query and best_score < SCORE_THRESHOLD):
+        if not top or best_score < SCORE_THRESHOLD:
             no_match = True
         else:
             results = []
