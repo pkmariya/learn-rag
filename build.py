@@ -2,13 +2,8 @@
 """
 Static site generator for the Learn-RAG wiki.
 
-Generates a Q&A-style homepage: the user types a question, and client-side
-JS ranks chunks of wiki content (by section) against it and shows the best
-matching passages with a citation link back to the full wiki page. No
-backend, no LLM, no API key -- pure client-side keyword retrieval.
-
-Individual wiki pages are still rendered (wiki-links resolved) so citation
-links have somewhere to go, but they are no longer the primary interface.
+Reads markdown pages from wiki/*.md, resolves [[wiki-links]], and renders
+a browsable static HTML site (sidebar nav, search) into site/.
 
 Usage: python3 build.py <repo_root>
     repo_root defaults to the current directory. Expects repo_root/wiki/*.md.
@@ -18,11 +13,15 @@ import sys
 import os
 import re
 import json
+import shutil
 import markdown
 from datetime import datetime
 
 WIKILINK_RE = re.compile(r"\[\[([^\]|]+?)(?:\|([^\]]+))?\]\]")
-SKIP_HEADINGS = {"related pages", "related page", "sources"}
+
+
+def slugify(name):
+    return name.strip()
 
 
 def load_pages(wiki_dir):
@@ -38,7 +37,9 @@ def load_pages(wiki_dir):
             text = f.read()
         title_match = re.search(r"^#\s+(.+)$", text, re.MULTILINE)
         title = title_match.group(1).strip() if title_match else slug
-        pages[slug] = {"title": title, "raw": text}
+        summary_match = re.search(r"\*\*Summary\*\*:\s*(.+)", text)
+        summary = summary_match.group(1).strip() if summary_match else ""
+        pages[slug] = {"title": title, "summary": summary, "raw": text}
     return pages
 
 
@@ -61,76 +62,30 @@ def resolve_wikilinks(text, pages):
     return WIKILINK_RE.sub(repl, text)
 
 
-def heading_slug(text):
-    s = text.strip().lower()
-    s = re.sub(r"[^a-z0-9]+", "-", s)
-    s = s.strip("-")
-    return s or "section"
-
-
-def strip_markdown(text):
-    text = re.sub(r"```.*?```", " ", text, flags=re.DOTALL)
-    text = WIKILINK_RE.sub(lambda m: (m.group(2) or m.group(1)).strip().rstrip("\\"), text)
-    text = re.sub(r"[#*`_>]", "", text)
-    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
-    text = re.sub(r"\|", " ", text)
-    text = re.sub(r"\n{2,}", "\n", text)
-    text = re.sub(r"[ \t]+", " ", text)
-    return text.strip()
-
-
-def split_sections(raw_md):
-    """Split page body (after the H1 title line) into (heading, text) chunks
-    on '## ' boundaries. The preamble before the first '## ' becomes 'Overview'."""
-    body = re.sub(r"^#\s+.+$", "", raw_md, count=1, flags=re.MULTILINE)
-    parts = re.split(r"^##\s+(.+)$", body, flags=re.MULTILINE)
-    sections = []
-    preamble = parts[0].strip()
-    if preamble:
-        sections.append(("Overview", preamble))
-    for i in range(1, len(parts), 2):
-        heading = parts[i].strip()
-        text = parts[i + 1] if i + 1 < len(parts) else ""
-        sections.append((heading, text))
-    return sections
-
-
-def build_qa_chunks(pages):
-    chunks = []
-    for slug, page in pages.items():
-        if slug == "index":
-            continue
-        for heading, text in split_sections(page["raw"]):
-            if heading.lower() in SKIP_HEADINGS:
-                continue
-            plain = strip_markdown(text)
-            if len(plain) < 20:
-                continue
-            chunks.append({
-                "slug": slug,
-                "title": page["title"],
-                "heading": heading,
-                "anchor": heading_slug(heading),
-                "text": plain,
-            })
-    return chunks
-
-
 PAGE_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{title} — Learn RAG Wiki</title>
+<title>{title} — Ask Mariya's Wiki anything about RAG</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="page">
-    <a class="back-link" href="index.html">&larr; Ask a question</a>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-header"><a href="index.html">Ask Mariya's Wiki anything about RAG</a></div>
+    <input type="text" id="search-box" placeholder="Search wiki...">
+    <div id="search-results"></div>
+    <div id="nav-tree">{nav}</div>
+  </nav>
+  <main class="content">
     <article>
 {body}
     </article>
-  </div>
+  </main>
+</div>
+<script src="search-data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
 """
@@ -144,19 +99,21 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="qa-page">
-    <header class="qa-header">
-      <h1>Ask Mariya's Wiki anything about RAG</h1>
-      <p class="qa-sub">Ask a question about Retrieval-Augmented Generation. Answers are pulled straight from the wiki content below &mdash; no external AI, just search over what's already written here.</p>
-    </header>
-    <form id="qa-form" class="qa-form" autocomplete="off">
-      <input type="text" id="qa-input" placeholder="e.g. What is hybrid retrieval?" autocomplete="off">
-      <button type="submit">Ask</button>
-    </form>
-    <div id="qa-results"></div>
-  </div>
-  <script src="qa-data.js"></script>
-  <script src="app.js"></script>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-header"><a href="index.html">Ask Mariya's Wiki anything about RAG</a></div>
+    <input type="text" id="search-box" placeholder="Search wiki...">
+    <div id="search-results"></div>
+    <div id="nav-tree">{nav}</div>
+  </nav>
+  <main class="content">
+    <article>
+{body}
+    </article>
+  </main>
+</div>
+<script src="search-data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
 """
@@ -164,7 +121,7 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 CSS = """
 :root {
   --bg: #ffffff;
-  --panel-bg: #f7f6f3;
+  --sidebar-bg: #f7f6f3;
   --border: #e5e3de;
   --text: #1b1b18;
   --muted: #6b6b63;
@@ -174,48 +131,66 @@ CSS = """
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; }
-
-/* Q&A homepage */
-.qa-page { max-width: 720px; margin: 0 auto; padding: 64px 24px 80px; }
-.qa-header h1 { font-size: 2.1rem; margin-bottom: 8px; }
-.qa-sub { color: var(--muted); font-size: 1rem; margin-bottom: 32px; }
-.qa-form { display: flex; gap: 8px; margin-bottom: 8px; }
-#qa-input {
-  flex: 1;
-  padding: 14px 16px;
-  font-size: 1rem;
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  padding: 16px;
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.sidebar-header a {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+  text-decoration: none;
+}
+#search-box {
+  width: 100%;
+  margin: 12px 0;
+  padding: 8px 10px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 6px;
+  font-size: 0.9rem;
 }
-.qa-form button {
-  padding: 14px 22px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  background: var(--accent);
-  color: white;
-  cursor: pointer;
+#search-results {
+  margin-bottom: 8px;
 }
-.qa-form button:hover { opacity: 0.9; }
-#qa-results { margin-top: 32px; display: flex; flex-direction: column; gap: 16px; }
-.qa-card {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 18px 20px;
-  background: var(--panel-bg);
+#search-results a {
+  display: block;
+  padding: 6px 8px;
+  border-radius: 4px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.88rem;
+  background: var(--accent-bg);
+  margin-bottom: 4px;
 }
-.qa-card h3 { margin: 0 0 8px; font-size: 1.05rem; }
-.qa-card p { margin: 0 0 10px; color: var(--text); }
-.qa-card mark { background: #f5d7ae; color: inherit; padding: 0 2px; border-radius: 2px; }
-.qa-source { font-size: 0.85rem; color: var(--accent); text-decoration: none; }
-.qa-source:hover { text-decoration: underline; }
-.qa-empty { color: var(--muted); }
-
-/* Individual wiki page view (reached via citation links) */
-.page { max-width: 780px; margin: 0 auto; padding: 32px 24px 80px; }
-.back-link { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
-.back-link:hover { text-decoration: underline; }
-article h1 { font-size: 1.9rem; margin: 24px 0 4px; }
+#search-results a:hover { background: #e6d5c4; }
+#nav-tree h3 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 18px 0 6px;
+}
+#nav-tree ul { list-style: none; padding-left: 0; margin: 0; }
+#nav-tree li { margin: 2px 0; }
+#nav-tree a {
+  display: block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+#nav-tree a:hover, #nav-tree a.active { background: var(--accent-bg); }
+.content { flex: 1; padding: 40px 48px; max-width: 860px; }
+article h1 { font-size: 1.9rem; margin-bottom: 4px; }
 article h2 { font-size: 1.3rem; margin-top: 2em; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
 article h3 { font-size: 1.05rem; margin-top: 1.5em; }
 article p { margin: 0.8em 0; }
@@ -224,131 +199,85 @@ article pre { background: #24211d; color: #f2ede6; padding: 14px 16px; border-ra
 article pre code { background: none; color: inherit; padding: 0; }
 article table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.92rem; }
 article th, article td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
-article th { background: var(--panel-bg); }
+article th { background: var(--sidebar-bg); }
 a.wikilink { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
 a.wikilink:hover { border-bottom-style: solid; }
 .wikilink.broken { color: var(--muted); border-bottom: 1px dotted var(--muted); cursor: help; }
 hr { border: none; border-top: 1px solid var(--border); margin: 1.5em 0; }
-@media (max-width: 600px) {
-  .qa-form { flex-direction: column; }
+@media (max-width: 800px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: static; }
+  .content { padding: 24px; }
 }
 """
 
 APP_JS = """
 (function() {
-  var form = document.getElementById('qa-form');
-  var input = document.getElementById('qa-input');
-  var results = document.getElementById('qa-results');
-  if (!form || typeof QA_DATA === 'undefined') return;
+  var box = document.getElementById('search-box');
+  var results = document.getElementById('search-results');
+  var navTree = document.getElementById('nav-tree');
+  if (!box) return;
 
-  var STOPWORDS = ["a","an","the","is","are","was","were","be","been","being",
-    "of","in","on","at","to","for","and","or","but","what","how","why","when",
-    "where","which","who","whom","does","do","did","can","could","should",
-    "would","will","with","this","that","these","those","it","its","as","by",
-    "from","about","into","than","then","so","if","not","no","yes","i","you",
-    "me","my","your"];
-  var STOP = {};
-  STOPWORDS.forEach(function(w){ STOP[w] = true; });
-
-  function escapeRe(s) { return s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'); }
-
-  function tokenize(s) {
-    return (s.toLowerCase().match(/[a-z0-9]+/g) || []);
-  }
-
-  // TF-IDF-lite: down-weight terms (like "rag") that appear in almost every
-  // chunk, so topic-specific words actually drive the ranking.
-  function computeIdf(qTokens) {
-    var idf = {};
-    var N = QA_DATA.length;
-    qTokens.forEach(function(t) {
-      if (STOP[t] || t.length < 2 || idf[t] !== undefined) return;
-      var df = 0;
-      for (var i = 0; i < QA_DATA.length; i++) {
-        if (QA_DATA[i].text.toLowerCase().indexOf(t) !== -1) df++;
-      }
-      idf[t] = Math.log((N + 1) / (df + 1)) + 0.15;
-    });
-    return idf;
-  }
-
-  function scoreChunk(qTokens, idf, chunk) {
-    var textLower = chunk.text.toLowerCase();
-    var headingLower = chunk.heading.toLowerCase();
-    var titleLower = chunk.title.toLowerCase();
-    var score = 0;
-    qTokens.forEach(function(t) {
-      if (STOP[t] || t.length < 2) return;
-      var w = idf[t] || 0.15;
-      var re = new RegExp('\\\\b' + escapeRe(t) + '\\\\b', 'g');
-      var textMatches = (textLower.match(re) || []).length;
-      var headingBonus = headingLower.indexOf(t) !== -1 ? 2 : 0;
-      var titleBonus = titleLower.indexOf(t) !== -1 ? 1 : 0;
-      score += (textMatches + headingBonus + titleBonus) * w;
-    });
-    return score / Math.sqrt(chunk.text.length / 200 + 1);
-  }
-
-  function highlight(text, qTokens) {
-    var escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    qTokens.forEach(function(t) {
-      if (STOP[t] || t.length < 2) return;
-      var re = new RegExp('(' + escapeRe(t) + ')', 'ig');
-      escaped = escaped.replace(re, '<mark>$1</mark>');
-    });
-    return escaped;
-  }
-
-  function snippet(text, maxLen) {
-    if (text.length <= maxLen) return text;
-    return text.slice(0, maxLen).trim() + '\\u2026';
-  }
-
-  function render(matches, query) {
+  function render(matches) {
     results.innerHTML = '';
-    if (!query.trim()) return;
-    if (!matches.length) {
-      results.innerHTML = '<p class="qa-empty">No matching content found in the wiki for that question. Try different wording.</p>';
-      return;
-    }
-    var qTokens = tokenize(query);
-    matches.slice(0, 5).forEach(function(m) {
-      var card = document.createElement('div');
-      card.className = 'qa-card';
-      var snip = snippet(m.text, 500);
-      var h3 = document.createElement('h3');
-      h3.textContent = m.heading;
-      var p = document.createElement('p');
-      p.innerHTML = highlight(snip, qTokens);
+    if (!matches.length) return;
+    matches.slice(0, 12).forEach(function(m) {
       var a = document.createElement('a');
-      a.className = 'qa-source';
-      a.href = m.slug + '.html#' + m.anchor;
-      a.textContent = 'Source: ' + m.title + ' \\u2192';
-      card.appendChild(h3);
-      card.appendChild(p);
-      card.appendChild(a);
-      results.appendChild(card);
+      a.href = m.slug + '.html';
+      a.textContent = m.title;
+      results.appendChild(a);
     });
   }
 
-  function ask(query) {
-    var allTokens = tokenize(query);
-    var qTokens = allTokens.filter(function(t) { return !STOP[t]; });
-    if (!qTokens.length) { render([], query); return; }
-    var idf = computeIdf(qTokens);
-    var scored = QA_DATA.map(function(chunk) {
-      return { chunk: chunk, score: scoreChunk(qTokens, idf, chunk) };
-    }).filter(function(x) { return x.score > 0; });
-    scored.sort(function(a, b) { return b.score - a.score; });
-    render(scored.map(function(x) { return x.chunk; }), query);
-  }
+  box.addEventListener('input', function() {
+    var q = box.value.trim().toLowerCase();
+    if (!q) { render([]); navTree.style.display = ''; return; }
+    navTree.style.display = 'none';
+    var matches = SEARCH_DATA.filter(function(p) {
+      return p.title.toLowerCase().indexOf(q) !== -1 ||
+             p.summary.toLowerCase().indexOf(q) !== -1 ||
+             p.text.toLowerCase().indexOf(q) !== -1;
+    });
+    render(matches);
+  });
 
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    ask(input.value);
+  // Highlight current page in nav
+  var current = window.location.pathname.split('/').pop();
+  document.querySelectorAll('#nav-tree a').forEach(function(a) {
+    if (a.getAttribute('href') === current) a.classList.add('active');
   });
 })();
 """
+
+
+def build_nav(index_text, pages):
+    """Turn index.md's '## Section' + '- [[slug]] — desc' structure into sidebar HTML."""
+    html = []
+    lines = index_text.splitlines()
+    in_list = False
+    for line in lines:
+        h2 = re.match(r"^##\s+(.+)$", line)
+        item = re.match(r"^-\s+\[\[([^\]]+)\]\]", line)
+        if h2:
+            if in_list:
+                html.append("</ul>")
+                in_list = False
+            html.append(f"<h3>{h2.group(1).strip()}</h3><ul>")
+            in_list = True
+        elif item:
+            slug = item.group(1).strip()
+            title = pages.get(slug, {}).get("title", slug)
+            html.append(f'<li><a href="{slug}.html">{title}</a></li>')
+    if in_list:
+        html.append("</ul>")
+    return "\n".join(html)
+
+
+def strip_markdown_for_search(text):
+    text = re.sub(r"```.*?```", " ", text, flags=re.DOTALL)
+    text = re.sub(r"[#*`_>\[\]]", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()[:2000]
 
 
 def main():
@@ -366,28 +295,36 @@ def main():
     os.makedirs(site_dir, exist_ok=True)
 
     pages = load_pages(wiki_dir)
-    qa_chunks = build_qa_chunks(pages)
+    index_raw = pages.get("index", {}).get("raw", "")
+    nav_html = build_nav(index_raw, pages)
+
+    search_data = []
 
     for slug, page in pages.items():
         body_md = resolve_wikilinks(page["raw"], pages)
         body_html = markdown.markdown(
             body_md, extensions=["tables", "fenced_code", "toc"]
         )
-        out = PAGE_TEMPLATE.format(title=page["title"], body=body_html)
+        template = INDEX_TEMPLATE if slug == "index" else PAGE_TEMPLATE
+        out = template.format(title=page["title"], nav=nav_html, body=body_html)
         with open(os.path.join(site_dir, f"{slug}.html"), "w", encoding="utf-8") as f:
             f.write(out)
-
-    with open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8") as f:
-        f.write(INDEX_TEMPLATE)
+        search_data.append({
+            "slug": slug,
+            "title": page["title"],
+            "summary": page["summary"],
+            "text": strip_markdown_for_search(page["raw"]),
+        })
 
     with open(os.path.join(site_dir, "style.css"), "w", encoding="utf-8") as f:
         f.write(CSS)
     with open(os.path.join(site_dir, "app.js"), "w", encoding="utf-8") as f:
         f.write(APP_JS)
-    with open(os.path.join(site_dir, "qa-data.js"), "w", encoding="utf-8") as f:
-        f.write("var QA_DATA = " + json.dumps(qa_chunks) + ";")
+    with open(os.path.join(site_dir, "search-data.js"), "w", encoding="utf-8") as f:
+        f.write("var SEARCH_DATA = " + json.dumps(search_data) + ";")
 
-    print(f"Built {len(pages)} pages and {len(qa_chunks)} Q&A chunks into {site_dir} at {datetime.now().isoformat()}")
+    # Redirect root -> index.html for convenience if server doesn't do it
+    print(f"Built {len(pages)} pages into {site_dir} at {datetime.now().isoformat()}")
 
 
 if __name__ == "__main__":
