@@ -213,7 +213,15 @@ def index():
         scored, q_tokens = rank(question)
         top = scored[:5]
         best_score = top[0][0] if top else 0
-        if not top or best_score < SCORE_THRESHOLD:
+        # For queries that reduce to a single meaningful word (e.g. "what is
+        # RAG?", "what is chunking?"), rank() already requires that word to
+        # actually appear in the chunk -- that's strong enough evidence on
+        # its own. Don't also apply the absolute score threshold, which is
+        # calibrated for multi-term queries and unfairly penalizes very
+        # common single words (like "rag" itself) that are deliberately
+        # down-weighted by idf for being ubiquitous.
+        single_term_query = len(set(q_tokens)) <= 1
+        if not top or (not single_term_query and best_score < SCORE_THRESHOLD):
             no_match = True
         else:
             results = []
