@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG vs Fine-Tuning — Learn RAG Wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-header"><a href="index.html">Learn RAG Wiki</a></div>
+    <input type="text" id="search-box" placeholder="Search wiki...">
+    <div id="search-results"></div>
+    <div id="nav-tree"><h3>Core Concepts</h3><ul>
+<li><a href="rag-overview.html">RAG Overview</a></li>
+<li><a href="rag-pipeline-architecture.html">RAG Pipeline Architecture</a></li>
+<li><a href="rag-types.html">RAG Types</a></li>
+<li><a href="agentic-rag.html">Agentic RAG</a></li>
+<li><a href="graph-based-rag.html">Graph-Based RAG</a></li>
+<li><a href="rag-vs-fine-tuning.html">RAG vs Fine-Tuning</a></li>
+<li><a href="cag-and-mag.html">CAG and MAG</a></li>
+</ul>
+<h3>Retrieval</h3><ul>
+<li><a href="embeddings.html">Embeddings</a></li>
+<li><a href="vector-databases.html">Vector Databases</a></li>
+<li><a href="vector-indexing.html">Vector Indexing</a></li>
+<li><a href="hybrid-retrieval.html">Hybrid Retrieval</a></li>
+<li><a href="reranking.html">Reranking</a></li>
+<li><a href="chunking-strategies.html">Chunking Strategies</a></li>
+</ul>
+<h3>Production</h3><ul>
+<li><a href="production-scaling.html">Production Scaling</a></li>
+<li><a href="rag-evaluation.html">RAG Evaluation</a></li>
+<li><a href="rag-failure-modes.html">RAG Failure Modes</a></li>
+<li><a href="hallucination.html">Hallucination</a></li>
+<li><a href="observability.html">Observability</a></li>
+<li><a href="latency-optimization.html">Latency Optimization</a></li>
+<li><a href="cost-optimization.html">Cost Optimization</a></li>
+</ul>
+<h3>Implementation</h3><ul>
+<li><a href="langchain-rag.html">LangChain RAG</a></li>
+</ul></div>
+  </nav>
+  <main class="content">
+    <article>
+<h1 id="rag-vs-fine-tuning">RAG vs Fine-Tuning</h1>
+<p><strong>Summary</strong>: RAG and fine-tuning are two approaches to making LLMs smarter about domain-specific knowledge. RAG retrieves information at query time from external sources; fine-tuning bakes knowledge into model weights during training. The best systems often use both.</p>
+<p><strong>Sources</strong>: RAG Vs Fine-Tuning.pdf</p>
+<p><strong>Last updated</strong>: 2026-07-04</p>
+<hr />
+<h2 id="the-core-difference">The Core Difference</h2>
+<ul>
+<li><strong>RAG</strong> (the "library assistant") — Has general knowledge but always searches a knowledge base for specific answers. Information stays external and updateable (source: RAG Vs Fine-Tuning.pdf).</li>
+<li><strong>Fine-tuning</strong> (the "specialized expert") — Trained extensively on your specific data. Knowledge is internalized in model weights (source: RAG Vs Fine-Tuning.pdf).</li>
+</ul>
+<h2 id="when-to-choose-rag">When to Choose RAG</h2>
+<p>Choose RAG when (source: RAG Vs Fine-Tuning.pdf):
+- Information changes frequently (FAQs, product catalogs, pricing)
+- Budget is limited
+- Quick implementation is needed
+- Information transparency and source attribution matter
+- Multiple domains or topics need to be covered</p>
+<p><strong>Use cases</strong>: Customer support, knowledge management, research assistance, dynamic content.</p>
+<p><strong>Cost example</strong>: TechCorp implemented RAG with a product database for $300/month. When new products launch, they add documents — no retraining needed (source: RAG Vs Fine-Tuning.pdf).</p>
+<h2 id="when-to-choose-fine-tuning">When to Choose Fine-Tuning</h2>
+<p>Choose fine-tuning when (source: RAG Vs Fine-Tuning.pdf):
+- Knowledge is consistent and stable
+- You need a specific behavior, tone, or style
+- Working in a specialized domain (legal, medical, scientific)
+- Privacy/security is critical (sensitive info shouldn't be in external databases)
+- Budget allows for higher upfront investment</p>
+<p><strong>Use cases</strong>: Domain-specific language (legal, medical), code generation in specific styles, brand voice consistency.</p>
+<p><strong>Cost example</strong>: LegalFirm fine-tuned on 10,000 past contracts for $25,000 upfront, saving $100,000/year in lawyer time (source: RAG Vs Fine-Tuning.pdf).</p>
+<h2 id="the-hybrid-approach">The Hybrid Approach</h2>
+<p>Smart systems combine both (source: RAG Vs Fine-Tuning.pdf):
+- <strong>Fine-tune for style</strong> — Train the model to match your brand voice or domain terminology
+- <strong>RAG for facts</strong> — Use retrieval for up-to-date, verifiable information
+- Result: Consistent personality + current information</p>
+<p><strong>Example</strong>: HealthcarePlus fine-tuned for medical terminology and bedside manner, then added RAG for latest treatment protocols. Patients get empathetic responses in proper medical language with current treatment info (source: RAG Vs Fine-Tuning.pdf).</p>
+<h2 id="decision-framework">Decision Framework</h2>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>RAG</th>
+<th>Fine-Tuning</th>
+<th>Hybrid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data freshness</td>
+<td>Excellent</td>
+<td>Poor (requires retraining)</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td>Domain expertise</td>
+<td>Good</td>
+<td>Excellent</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td>Implementation cost</td>
+<td>Low (~$300/mo)</td>
+<td>High (~$15-25K upfront)</td>
+<td>Highest</td>
+</tr>
+<tr>
+<td>Time to deploy</td>
+<td>Fast</td>
+<td>Slow (training required)</td>
+<td>Slowest</td>
+</tr>
+<tr>
+<td>Source attribution</td>
+<td>Yes</td>
+<td>No</td>
+<td>Partial</td>
+</tr>
+<tr>
+<td>Consistency of style</td>
+<td>Depends on prompt</td>
+<td>Excellent</td>
+<td>Excellent</td>
+</tr>
+</tbody>
+</table>
+<h2 id="implementation-roadmap">Implementation Roadmap</h2>
+<p><strong>For RAG</strong> (source: RAG Vs Fine-Tuning.pdf):
+1. Identify your knowledge sources
+2. Choose a <a class="wikilink" href="vector-databases.html">vector database</a>
+3. Set up document processing pipeline (<a class="wikilink" href="chunking-strategies.html">chunking-strategies</a>)
+4. Implement retrieval system
+5. Test and iterate (<a class="wikilink" href="rag-evaluation.html">rag-evaluation</a>)</p>
+<p><strong>For Fine-Tuning</strong> (source: RAG Vs Fine-Tuning.pdf):
+1. Collect and clean training data
+2. Define success metrics
+3. Choose base model
+4. Train and validate
+5. Deploy and monitor</p>
+<h2 id="related-pages">Related Pages</h2>
+<ul>
+<li><a class="wikilink" href="rag-overview.html">rag-overview</a></li>
+<li><a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a></li>
+<li><a class="wikilink" href="cost-optimization.html">cost-optimization</a></li>
+<li><a class="wikilink" href="cag-and-mag.html">cag-and-mag</a></li>
+</ul>
+    </article>
+  </main>
+</div>
+<script src="search-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

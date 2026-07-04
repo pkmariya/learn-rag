@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAG and MAG — Learn RAG Wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-header"><a href="index.html">Learn RAG Wiki</a></div>
+    <input type="text" id="search-box" placeholder="Search wiki...">
+    <div id="search-results"></div>
+    <div id="nav-tree"><h3>Core Concepts</h3><ul>
+<li><a href="rag-overview.html">RAG Overview</a></li>
+<li><a href="rag-pipeline-architecture.html">RAG Pipeline Architecture</a></li>
+<li><a href="rag-types.html">RAG Types</a></li>
+<li><a href="agentic-rag.html">Agentic RAG</a></li>
+<li><a href="graph-based-rag.html">Graph-Based RAG</a></li>
+<li><a href="rag-vs-fine-tuning.html">RAG vs Fine-Tuning</a></li>
+<li><a href="cag-and-mag.html">CAG and MAG</a></li>
+</ul>
+<h3>Retrieval</h3><ul>
+<li><a href="embeddings.html">Embeddings</a></li>
+<li><a href="vector-databases.html">Vector Databases</a></li>
+<li><a href="vector-indexing.html">Vector Indexing</a></li>
+<li><a href="hybrid-retrieval.html">Hybrid Retrieval</a></li>
+<li><a href="reranking.html">Reranking</a></li>
+<li><a href="chunking-strategies.html">Chunking Strategies</a></li>
+</ul>
+<h3>Production</h3><ul>
+<li><a href="production-scaling.html">Production Scaling</a></li>
+<li><a href="rag-evaluation.html">RAG Evaluation</a></li>
+<li><a href="rag-failure-modes.html">RAG Failure Modes</a></li>
+<li><a href="hallucination.html">Hallucination</a></li>
+<li><a href="observability.html">Observability</a></li>
+<li><a href="latency-optimization.html">Latency Optimization</a></li>
+<li><a href="cost-optimization.html">Cost Optimization</a></li>
+</ul>
+<h3>Implementation</h3><ul>
+<li><a href="langchain-rag.html">LangChain RAG</a></li>
+</ul></div>
+  </nav>
+  <main class="content">
+    <article>
+<h1 id="cag-and-mag">CAG and MAG</h1>
+<p><strong>Summary</strong>: CAG (Cache-Augmented Generation) and MAG (Memory-Augmented Generation) are alternative augmentation paradigms alongside RAG. CAG eliminates retrieval latency by preloading all knowledge into the context window. MAG adds persistent, evolving memory across sessions for personalization.</p>
+<p><strong>Sources</strong>: RAG Vs CAG Vs MAG.pdf</p>
+<p><strong>Last updated</strong>: 2026-07-04</p>
+<hr />
+<h2 id="the-core-problem">The Core Problem</h2>
+<p>LLMs are powerful but frozen — they know nothing beyond their training cutoff and nothing about your business. A user asking "What's the current pricing for the Pro plan?" gets an answer from 18-month-old training data. Three paradigms address this differently (source: RAG Vs CAG Vs MAG.pdf).</p>
+<h2 id="cag-cache-augmented-generation">CAG (Cache-Augmented Generation)</h2>
+<p>Preloads all knowledge into the LLM's context window at startup, precomputes KV (key-value) cache states, then answers queries without any retrieval step (source: RAG Vs CAG Vs MAG.pdf).</p>
+<p><strong>How it works</strong>:
+1. <strong>Load Docs (startup)</strong> — Load all documents into LLM context window
+2. <strong>Precompute KV Cache</strong> — Save attention states to memory (done once)
+3. <strong>Query Time (fast path)</strong> — Append query to cache, generate answer (no retrieval)</p>
+<p><strong>Strengths</strong> (source: RAG Vs CAG Vs MAG.pdf):
+- Reduced latency (eliminates real-time retrieval)
+- No chunking errors (full documents in context)
+- Enhanced multi-hop reasoning (all info processed upfront)
+- Simpler architecture (no embedding pipeline, no vector DB)</p>
+<p><strong>Weaknesses</strong> (source: RAG Vs CAG Vs MAG.pdf):
+- Limited by context window size for large datasets
+- Stale cache problem (requires full rebuild when knowledge changes)
+- Initial overhead to precompute KV cache
+- Not multi-tenant (one shared context)</p>
+<p><strong>When to use</strong>: Stable, bounded knowledge bases that fit in the context window. Example: HR policy chatbot with 80 stable docs totaling 200K tokens (source: RAG Vs CAG Vs MAG.pdf).</p>
+<p><strong>Frameworks</strong>: vLLM, HF Transformers, Anthropic prompt caching (source: RAG Vs CAG Vs MAG.pdf).</p>
+<h2 id="mag-memory-augmented-generation">MAG (Memory-Augmented Generation)</h2>
+<p>Adds dynamic, evolving memory that persists, updates, and improves across sessions — giving the system continuity and personalization (source: RAG Vs CAG Vs MAG.pdf).</p>
+<p><strong>How it works</strong>:
+1. <strong>Current Session</strong> — Working memory + episodic/semantic memory retrieval
+2. <strong>Memory Update &amp; Consolidation</strong> — Important facts/preferences written back to memory store
+3. <strong>Next Session Continuity</strong> — Memory retrieved for same user, providing full continuity</p>
+<p><strong>Strengths</strong> (source: RAG Vs CAG Vs MAG.pdf):
+- True continuity (remembers preferences, decisions, history)
+- Self-improving (gets richer the more the system is used)
+- Personalization at scale (each user has their own evolving memory layer)
+- Combines multiple memory types (episodic, semantic, procedural)</p>
+<p><strong>Weaknesses</strong> (source: RAG Vs CAG Vs MAG.pdf):
+- Memory staleness (old memories can contradict new facts)
+- Privacy risk (stores contain sensitive personal information)
+- Write strategy complexity (deciding what to remember/forget is non-trivial)
+- Highest infrastructure complexity of the three paradigms</p>
+<p><strong>When to use</strong>: Long-running agents, personal assistants, multi-session systems where users return. Example: Executive assistant AI used daily that remembers goals, preferences, and decisions (source: RAG Vs CAG Vs MAG.pdf).</p>
+<p><strong>Frameworks</strong>: Mem0, Zep, MemGPT, LangGraph (source: RAG Vs CAG Vs MAG.pdf).</p>
+<h2 id="decision-framework">Decision Framework</h2>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>RAG</th>
+<th>CAG</th>
+<th>MAG</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Corpus size</td>
+<td>Any (scales to millions)</td>
+<td>Must fit in context window</td>
+<td>Any</td>
+</tr>
+<tr>
+<td>Change frequency</td>
+<td>Daily updates OK</td>
+<td>Stable for months</td>
+<td>Evolves with user</td>
+</tr>
+<tr>
+<td>Multi-session</td>
+<td>No (stateless)</td>
+<td>No (stateless)</td>
+<td>Yes (persistent memory)</td>
+</tr>
+<tr>
+<td>Latency priority</td>
+<td>Medium</td>
+<td>Lowest</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>Always-fresh info</td>
+<td>Yes</td>
+<td>No (stale cache risk)</td>
+<td>Partial</td>
+</tr>
+<tr>
+<td>Personalization</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Infrastructure complexity</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Highest</td>
+</tr>
+</tbody>
+</table>
+<p>(source: RAG Vs CAG Vs MAG.pdf)</p>
+<h2 id="scenario-based-selection">Scenario-Based Selection</h2>
+<ul>
+<li><strong>Telecom support bot</strong> (10M customers, 500 product docs updating weekly) -&gt; <strong>RAG</strong>. Corpus too large for CAG, queries vary widely (source: RAG Vs CAG Vs MAG.pdf).</li>
+<li><strong>HR policy chatbot</strong> (80 stable policy docs, 200K tokens) -&gt; <strong>CAG</strong>. Docs fit in context, policies don't change daily (source: RAG Vs CAG Vs MAG.pdf).</li>
+<li><strong>Executive assistant</strong> (personal AI used daily) -&gt; <strong>MAG</strong>. Needs to remember goals, preferences, decisions, style (source: RAG Vs CAG Vs MAG.pdf).</li>
+</ul>
+<h2 id="hybrid-approach">Hybrid Approach</h2>
+<p>High-performance systems can combine paradigms: CAG for core identity/stable knowledge + RAG for long-tail search over large, changing corpora (source: RAG Vs CAG Vs MAG.pdf).</p>
+<h2 id="related-pages">Related Pages</h2>
+<ul>
+<li><a class="wikilink" href="rag-overview.html">rag-overview</a></li>
+<li><a class="wikilink" href="rag-vs-fine-tuning.html">rag-vs-fine-tuning</a></li>
+<li><a class="wikilink" href="rag-types.html">rag-types</a></li>
+<li><a class="wikilink" href="cost-optimization.html">cost-optimization</a></li>
+<li><a class="wikilink" href="latency-optimization.html">latency-optimization</a></li>
+</ul>
+    </article>
+  </main>
+</div>
+<script src="search-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

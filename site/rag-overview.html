@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Overview — Learn RAG Wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-header"><a href="index.html">Learn RAG Wiki</a></div>
+    <input type="text" id="search-box" placeholder="Search wiki...">
+    <div id="search-results"></div>
+    <div id="nav-tree"><h3>Core Concepts</h3><ul>
+<li><a href="rag-overview.html">RAG Overview</a></li>
+<li><a href="rag-pipeline-architecture.html">RAG Pipeline Architecture</a></li>
+<li><a href="rag-types.html">RAG Types</a></li>
+<li><a href="agentic-rag.html">Agentic RAG</a></li>
+<li><a href="graph-based-rag.html">Graph-Based RAG</a></li>
+<li><a href="rag-vs-fine-tuning.html">RAG vs Fine-Tuning</a></li>
+<li><a href="cag-and-mag.html">CAG and MAG</a></li>
+</ul>
+<h3>Retrieval</h3><ul>
+<li><a href="embeddings.html">Embeddings</a></li>
+<li><a href="vector-databases.html">Vector Databases</a></li>
+<li><a href="vector-indexing.html">Vector Indexing</a></li>
+<li><a href="hybrid-retrieval.html">Hybrid Retrieval</a></li>
+<li><a href="reranking.html">Reranking</a></li>
+<li><a href="chunking-strategies.html">Chunking Strategies</a></li>
+</ul>
+<h3>Production</h3><ul>
+<li><a href="production-scaling.html">Production Scaling</a></li>
+<li><a href="rag-evaluation.html">RAG Evaluation</a></li>
+<li><a href="rag-failure-modes.html">RAG Failure Modes</a></li>
+<li><a href="hallucination.html">Hallucination</a></li>
+<li><a href="observability.html">Observability</a></li>
+<li><a href="latency-optimization.html">Latency Optimization</a></li>
+<li><a href="cost-optimization.html">Cost Optimization</a></li>
+</ul>
+<h3>Implementation</h3><ul>
+<li><a href="langchain-rag.html">LangChain RAG</a></li>
+</ul></div>
+  </nav>
+  <main class="content">
+    <article>
+<h1 id="rag-overview">RAG Overview</h1>
+<p><strong>Summary</strong>: Retrieval Augmented Generation (RAG) is a technique that enhances LLM outputs by retrieving relevant external knowledge before generating a response, grounding answers in real data rather than relying solely on the model's training.</p>
+<p><strong>Sources</strong>: RAG Primer.docx</p>
+<p><strong>Last updated</strong>: 2026-07-04</p>
+<hr />
+<h2 id="what-is-rag">What is RAG?</h2>
+<p>RAG combines an LLM's generation capabilities with real-time retrieval from external knowledge sources. Instead of relying purely on what the model learned during training, RAG fetches relevant documents and uses them as context for generating more accurate, up-to-date responses (source: RAG Primer.docx).</p>
+<p>The basic pipeline is: User query -&gt; Embedding -&gt; Vector search -&gt; Top-k documents retrieved -&gt; Assembled into prompt context -&gt; LLM generates response (source: RAG Primer.docx).</p>
+<h2 id="how-ai-systems-have-progressed">How AI Systems Have Progressed</h2>
+<p>RAG sits in a progression of increasingly capable AI system architectures (source: RAG Primer.docx):</p>
+<ol>
+<li><strong>LLM</strong> — Context-free generation from prompt input without external retrieval. Fast and simple but limited in context understanding.</li>
+<li><strong>RAG</strong> — Knowledge-enhanced. Combines LLM output with real-time retrieval from external sources for more accurate, up-to-date responses.</li>
+<li><strong>AI Agent</strong> — Autonomous task execution using planning, reasoning, memory, and tool integrations to complete workflows requiring decision-making.</li>
+<li><strong>Agentic AI</strong> — Multi-agent collaboration where specialized agents coordinate, share memory, and divide tasks to solve complex problems together.</li>
+</ol>
+<h2 id="common-challenges">Common Challenges</h2>
+<p>Five common challenges cause RAG systems to fail (source: RAG Primer.docx):</p>
+<ol>
+<li><strong>Poor Chunking</strong> — Use context-aware, semantic chunking instead of fixed-size chunking</li>
+<li><strong>Weak Embeddings</strong> — Use domain-specific embedding models</li>
+<li><strong>Bloated Prompts</strong> — Keep prompts clean and structured</li>
+<li><strong>Lack of Metadata</strong> — Add metadata filters to control what gets retrieved</li>
+<li><strong>No Feedback Loop</strong> — Build a feedback loop to learn which retrievals actually helped</li>
+</ol>
+<h2 id="rag-is-a-system-not-a-feature">RAG is a System, Not a Feature</h2>
+<p>Most explanations simplify RAG to "Documents -&gt; Embeddings -&gt; Vector DB -&gt; Retrieve -&gt; LLM." In reality, a production-grade RAG system is a multi-layer architecture where every stage influences the final answer (source: RAG Primer.docx).</p>
+<p>The 12 core components of a production RAG system are covered in <a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a>.</p>
+<h2 id="rag-is-a-pipeline-problem">RAG is a Pipeline Problem</h2>
+<p>Most teams obsess over the model, but RAG is not a model problem — it is a pipeline problem. You can use the most powerful LLM in the world and still get poor answers if your retrieval layer is weak. RAG in production is less about AI magic and more about system design (source: RAG Primer.docx).</p>
+<h2 id="related-pages">Related Pages</h2>
+<ul>
+<li><a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a></li>
+<li><a class="wikilink" href="chunking-strategies.html">chunking-strategies</a></li>
+<li><a class="wikilink" href="embeddings.html">embeddings</a></li>
+<li><a class="wikilink" href="vector-databases.html">vector-databases</a></li>
+<li><a class="wikilink" href="hybrid-retrieval.html">hybrid-retrieval</a></li>
+<li><a class="wikilink" href="reranking.html">reranking</a></li>
+<li><a class="wikilink" href="agentic-rag.html">agentic-rag</a></li>
+<li><a class="wikilink" href="graph-based-rag.html">graph-based-rag</a></li>
+<li><a class="wikilink" href="rag-evaluation.html">rag-evaluation</a></li>
+<li><a class="wikilink" href="hallucination.html">hallucination</a></li>
+<li><a class="wikilink" href="observability.html">observability</a></li>
+<li><a class="wikilink" href="latency-optimization.html">latency-optimization</a></li>
+<li><a class="wikilink" href="cost-optimization.html">cost-optimization</a></li>
+</ul>
+    </article>
+  </main>
+</div>
+<script src="search-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

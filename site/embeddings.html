@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Embeddings — Learn RAG Wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-header"><a href="index.html">Learn RAG Wiki</a></div>
+    <input type="text" id="search-box" placeholder="Search wiki...">
+    <div id="search-results"></div>
+    <div id="nav-tree"><h3>Core Concepts</h3><ul>
+<li><a href="rag-overview.html">RAG Overview</a></li>
+<li><a href="rag-pipeline-architecture.html">RAG Pipeline Architecture</a></li>
+<li><a href="rag-types.html">RAG Types</a></li>
+<li><a href="agentic-rag.html">Agentic RAG</a></li>
+<li><a href="graph-based-rag.html">Graph-Based RAG</a></li>
+<li><a href="rag-vs-fine-tuning.html">RAG vs Fine-Tuning</a></li>
+<li><a href="cag-and-mag.html">CAG and MAG</a></li>
+</ul>
+<h3>Retrieval</h3><ul>
+<li><a href="embeddings.html">Embeddings</a></li>
+<li><a href="vector-databases.html">Vector Databases</a></li>
+<li><a href="vector-indexing.html">Vector Indexing</a></li>
+<li><a href="hybrid-retrieval.html">Hybrid Retrieval</a></li>
+<li><a href="reranking.html">Reranking</a></li>
+<li><a href="chunking-strategies.html">Chunking Strategies</a></li>
+</ul>
+<h3>Production</h3><ul>
+<li><a href="production-scaling.html">Production Scaling</a></li>
+<li><a href="rag-evaluation.html">RAG Evaluation</a></li>
+<li><a href="rag-failure-modes.html">RAG Failure Modes</a></li>
+<li><a href="hallucination.html">Hallucination</a></li>
+<li><a href="observability.html">Observability</a></li>
+<li><a href="latency-optimization.html">Latency Optimization</a></li>
+<li><a href="cost-optimization.html">Cost Optimization</a></li>
+</ul>
+<h3>Implementation</h3><ul>
+<li><a href="langchain-rag.html">LangChain RAG</a></li>
+</ul></div>
+  </nav>
+  <main class="content">
+    <article>
+<h1 id="embeddings">Embeddings</h1>
+<p><strong>Summary</strong>: Embeddings turn human language into numerical vectors where distance equals similarity. They are the foundation of semantic search, RAG retrieval, and modern AI — without them, these systems cannot function.</p>
+<p><strong>Sources</strong>: RAG Primer.docx</p>
+<p><strong>Last updated</strong>: 2026-07-04</p>
+<hr />
+<h2 id="why-embeddings">Why Embeddings?</h2>
+<p>Computers do not understand words — they understand numbers. Embeddings turn messy human language into clean numerical maps of meaning. Each word, sentence, or document becomes a vector with position and distance. Distance equals similarity (source: RAG Primer.docx).</p>
+<p>This is how large language models work at scale (source: RAG Primer.docx):
+- They scan millions of documents in milliseconds
+- They find meaning without exact keyword matches
+- They compare ideas even when the wording is different
+- They retrieve the right context before generating an answer</p>
+<p>Without embeddings, semantic search does not exist. Without embeddings, RAG pipelines break. Without embeddings, models do not understand what you mean (source: RAG Primer.docx).</p>
+<h2 id="static-vs-contextual-embeddings">Static vs Contextual Embeddings</h2>
+<h3 id="static-embeddings-word2vec-glove-fasttext">Static Embeddings (Word2Vec, GloVe, FastText)</h3>
+<p>Static embeddings are context-blind — they collapse every meaning of a word into a single point in space. This causes <strong>polysemy collapse</strong>: a word like "Washington" pulls both "State" and "D.C." results into the same cluster, destroying search precision (source: RAG Primer.docx).</p>
+<h3 id="contextual-embeddings-bert-roberta-transformers">Contextual Embeddings (BERT, RoBERTa, Transformers)</h3>
+<p>Transformer-based models generate an embedding based on surrounding tokens. "Washington is a state" and "Washington is the capital" produce two distinct vectors because the attention mechanism looks at neighbor words (source: RAG Primer.docx).</p>
+<h2 id="solving-semantic-ambiguity">Solving Semantic Ambiguity</h2>
+<p>Three approaches to resolve polysemy without losing transfer learning benefits (source: RAG Primer.docx):</p>
+<ol>
+<li>
+<p><strong>Contextual Embeddings</strong> — Shift from static models to transformer-based models (BERT/RoBERTa) that generate dynamic, context-dependent embeddings.</p>
+</li>
+<li>
+<p><strong>Sense Disambiguation (WSD)</strong> — If stuck with static vectors, implement a Sense-Aware layer. Map ambiguous words to different "sense centroids" based on trigger keywords in the query.</p>
+</li>
+<li>
+<p><strong>The Projection Trick</strong> — Learn a small projection matrix that stretches the vector space along specific dimensions to separate clusters, keeping pre-trained weights frozen. No retraining required.</p>
+</li>
+</ol>
+<h2 id="embedding-model-selection">Embedding Model Selection</h2>
+<p>When choosing an embedding model, consider (source: RAG Primer.docx):
+- Vector dimensions and cost trade-offs
+- ANN algorithms (HNSW, IVF)
+- Similarity metrics (cosine, dot product)
+- Domain-specific vs general-purpose models</p>
+<h2 id="nlp-pipeline-foundation">NLP Pipeline Foundation</h2>
+<p>Before jumping into prompting LLMs, understanding the NLP pipeline is essential (source: RAG Primer.docx):</p>
+<ol>
+<li><strong>Basic Pre-processing</strong> — Tokenization, lemmatization, stemming, stop-word removal</li>
+<li><strong>Word Embeddings</strong> — Word2Vec (CBOW vs Skip-Gram), GloVe, FastText, transformer-based</li>
+<li><strong>Sequence Models</strong> — RNNs, LSTMs, GRUs, then BERT's bidirectional context breakthrough</li>
+<li><strong>Core NLP Tasks</strong> — NER, POS tagging, sentiment analysis, machine translation</li>
+</ol>
+<h2 id="related-pages">Related Pages</h2>
+<ul>
+<li><a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a></li>
+<li><a class="wikilink" href="chunking-strategies.html">chunking-strategies</a></li>
+<li><a class="wikilink" href="vector-databases.html">vector-databases</a></li>
+<li><a class="wikilink" href="hybrid-retrieval.html">hybrid-retrieval</a></li>
+<li><a class="wikilink" href="cost-optimization.html">cost-optimization</a></li>
+</ul>
+    </article>
+  </main>
+</div>
+<script src="search-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Observability — Learn RAG Wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-header"><a href="index.html">Learn RAG Wiki</a></div>
+    <input type="text" id="search-box" placeholder="Search wiki...">
+    <div id="search-results"></div>
+    <div id="nav-tree"><h3>Core Concepts</h3><ul>
+<li><a href="rag-overview.html">RAG Overview</a></li>
+<li><a href="rag-pipeline-architecture.html">RAG Pipeline Architecture</a></li>
+<li><a href="rag-types.html">RAG Types</a></li>
+<li><a href="agentic-rag.html">Agentic RAG</a></li>
+<li><a href="graph-based-rag.html">Graph-Based RAG</a></li>
+<li><a href="rag-vs-fine-tuning.html">RAG vs Fine-Tuning</a></li>
+<li><a href="cag-and-mag.html">CAG and MAG</a></li>
+</ul>
+<h3>Retrieval</h3><ul>
+<li><a href="embeddings.html">Embeddings</a></li>
+<li><a href="vector-databases.html">Vector Databases</a></li>
+<li><a href="vector-indexing.html">Vector Indexing</a></li>
+<li><a href="hybrid-retrieval.html">Hybrid Retrieval</a></li>
+<li><a href="reranking.html">Reranking</a></li>
+<li><a href="chunking-strategies.html">Chunking Strategies</a></li>
+</ul>
+<h3>Production</h3><ul>
+<li><a href="production-scaling.html">Production Scaling</a></li>
+<li><a href="rag-evaluation.html">RAG Evaluation</a></li>
+<li><a href="rag-failure-modes.html">RAG Failure Modes</a></li>
+<li><a href="hallucination.html">Hallucination</a></li>
+<li><a href="observability.html">Observability</a></li>
+<li><a href="latency-optimization.html">Latency Optimization</a></li>
+<li><a href="cost-optimization.html">Cost Optimization</a></li>
+</ul>
+<h3>Implementation</h3><ul>
+<li><a href="langchain-rag.html">LangChain RAG</a></li>
+</ul></div>
+  </nav>
+  <main class="content">
+    <article>
+<h1 id="observability">Observability</h1>
+<p><strong>Summary</strong>: Observability in RAG systems means tracking every step of the pipeline through span-level tracing. AI systems degrade over time, and without visibility into each component, problems cannot be diagnosed or fixed.</p>
+<p><strong>Sources</strong>: RAG Primer.docx</p>
+<p><strong>Last updated</strong>: 2026-07-04</p>
+<hr />
+<h2 id="why-observability-matters">Why Observability Matters</h2>
+<p>If you are deploying LLM-powered apps to real users, you need to know what is happening inside your pipeline at every step. A user asks a question, it flows through multiple components, and eventually a response comes out. Each step takes time, each can fail, and each has its own cost. Looking only at input and output gives no visibility (source: RAG Primer.docx).</p>
+<p>AI systems degrade over time. What worked last month might not work today. Span-level metrics let you catch drift early and tune each component independently (source: RAG Primer.docx).</p>
+<h2 id="the-five-spans">The Five Spans</h2>
+<p>Each RAG request can be traced through five spans (source: RAG Primer.docx):</p>
+<h3 id="1-query-span">1. Query Span</h3>
+<p>User submits a question. This is where the trace begins. Captures raw input, timestamp, and session info.</p>
+<h3 id="2-embedding-span">2. Embedding Span</h3>
+<p>The query hits the <a class="wikilink" href="embeddings.html">embedding</a> model and becomes a vector. Tracks token count and latency. If the embedding API is slow or hitting rate limits, this span catches it.</p>
+<h3 id="3-retrieval-span">3. Retrieval Span</h3>
+<p>The vector goes to the <a class="wikilink" href="vector-databases.html">vector database</a> for similarity search. <strong>This is where most RAG problems hide.</strong> Common reasons: bad chunks, low relevance scores, wrong top-k values. The retrieval span exposes all of it.</p>
+<h3 id="4-context-span">4. Context Span</h3>
+<p>Retrieved chunks get assembled with the system prompt. Shows exactly what is being fed to the LLM. If the context is too long, it shows up here.</p>
+<h3 id="5-generation-span">5. Generation Span</h3>
+<p>The LLM produces a response. Usually the longest and most expensive span. Input tokens, output tokens, latency, reasoning — everything is logged for <a class="wikilink" href="cost-optimization.html">cost tracking</a> and debugging.</p>
+<h2 id="governance-and-observability">Governance and Observability</h2>
+<p>Production RAG requires logs, traces, metrics, and audits. If you cannot see it, you cannot trust it (source: RAG Primer.docx).</p>
+<h2 id="model-drift-detection">Model Drift Detection</h2>
+<p>RAG answers can degrade even without code changes when the LLM provider silently updates the model. Strategies to catch model drift (source: RAG Primer.docx):</p>
+<ol>
+<li><strong>Pin the model version</strong> — Use specific version strings, not aliases. Log the exact version on every call.</li>
+<li><strong>Golden test set</strong> — Pick 100 real questions with known good answers. Run them nightly. Compare scores.</li>
+<li><strong>LLM-as-judge</strong> — Sample 2-5% of live answers. Score with a stronger model on faithfulness and relevance. Plot the trend.</li>
+<li><strong>User signals</strong> — Thumbs down, regenerate clicks, follow-up questions, abandonment. These shift before complaints arrive.</li>
+<li><strong>Monitor structural metrics</strong> — Answer length, refusal rate, hedging phrases ("I'm not sure"). Structural drift shows up first.</li>
+</ol>
+<h2 id="related-pages">Related Pages</h2>
+<ul>
+<li><a class="wikilink" href="rag-evaluation.html">rag-evaluation</a></li>
+<li><a class="wikilink" href="rag-pipeline-architecture.html">rag-pipeline-architecture</a></li>
+<li><a class="wikilink" href="latency-optimization.html">latency-optimization</a></li>
+<li><a class="wikilink" href="hallucination.html">hallucination</a></li>
+</ul>
+    </article>
+  </main>
+</div>
+<script src="search-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

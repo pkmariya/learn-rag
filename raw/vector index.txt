@@ -1,0 +1,13 @@
+• Someone built a RAC vector index on Google's TurboQuant research, and it fits 10 million documents in just 4GB of database memory.
+• The most common vector index that most RAC pipelines today run on is FICE, and before FICE can search anything, it needs to study your data first.
+• It samples your documents, groups them into clusters, builds a look-up structure from that, and only then can you start searching.
+• If your data grows or shifts significantly, you may need to redo that whole process.
+• Google research published a paper last year called TurboQuant, which I covered a couple of months back, and it found something that changes this.
+• If you apply a random rotation to your document vectors before compressing them, their statistical distribution becomes predictable.
+• The math can figure out the shape of your data without ever seeing it.
+• TurboWek is built on exactly that. You add a document and it gets indexed immediately.
+• Your corpus can grow or shift without ever needing to rebuild the index.
+• And the compression TurboQuant brings takes 10 million document embeddings from 31GB down to just 4.
+• It's built in rust with Python wrappers for LAN chain, Lama index, and Haystack that are already there.
+• I will link everything in the comments, and if you just want it in your DMs, just comment link and I'll send it to you.
+• Catch you guys in the next one.
