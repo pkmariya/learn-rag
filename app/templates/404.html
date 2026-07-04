@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page not found — Ask Mariya's Wiki</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="page">
+    <a class="back-link" href="{{ url_for('index') }}">&larr; Ask a question</a>
+    <article>
+      <h1>Page not found</h1>
+      <p>No wiki page named "{{ slug }}".</p>
+    </article>
+  </div>
+</body>
+</html>
