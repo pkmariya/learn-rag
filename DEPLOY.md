@@ -2,7 +2,8 @@
 
 The `site/` folder is a static, generated website (nginx + Dockerfile included).
 It's rebuilt from `wiki/*.md` automatically by the GitHub Actions workflow at
-`.github/workflows/deploy.yml` on every push to `main`, and deployed to Cloud Run.
+`.github/workflows/deploy.yml`, then built into a container image from
+`site/Dockerfile` and deployed to Cloud Run on every push to `main`.
 
 ## One-time setup (do this once, from Google Cloud Shell — no local install needed)
 
@@ -15,7 +16,8 @@ gcloud config set project $PROJECT_ID
 
 # 2. Enable required APIs
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com \
-  artifactregistry.googleapis.com iam.googleapis.com
+  artifactregistry.googleapis.com containerregistry.googleapis.com \
+  iam.googleapis.com
 
 # 3. Create a service account for GitHub Actions to deploy with
 gcloud iam service-accounts create gh-deployer \
