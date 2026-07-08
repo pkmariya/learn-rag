@@ -39,10 +39,20 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Configure Docker auth
+        run: gcloud auth configure-docker gcr.io --quiet
+
+      - name: Build and push image
+        run: |
+          IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/${SERVICE}:${GITHUB_SHA}"
+          docker build -t "$IMAGE" ./site
+          docker push "$IMAGE"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy "$SERVICE" \
-            --source=./site \
+            --image="$IMAGE" \
             --region="$REGION" \
             --project="${{ secrets.GCP_PROJECT_ID }}" \
             --allow-unauthenticated \

@@ -2,7 +2,8 @@
 
 The `site/` folder is a static, generated website (nginx + Dockerfile included).
 It's rebuilt from `wiki/*.md` automatically by the GitHub Actions workflow at
-`.github/workflows/deploy.yml` on every push to `main`, and deployed to Cloud Run.
+`.github/workflows/deploy.yml` on every push to `main`, then containerized in GitHub
+Actions and deployed to Cloud Run.
 
 ## One-time setup (do this once, from Google Cloud Shell — no local install needed)
 
@@ -14,8 +15,8 @@ export PROJECT_ID=YOUR_PROJECT_ID
 gcloud config set project $PROJECT_ID
 
 # 2. Enable required APIs
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com \
-  artifactregistry.googleapis.com iam.googleapis.com
+gcloud services enable run.googleapis.com containerregistry.googleapis.com \
+  iam.googleapis.com
 
 # 3. Create a service account for GitHub Actions to deploy with
 gcloud iam service-accounts create gh-deployer \
@@ -29,11 +30,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:$SA_EMAIL" --role="roles/iam.serviceAccountUser"
 gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="serviceAccount:$SA_EMAIL" --role="roles/cloudbuild.builds.editor"
-gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:$SA_EMAIL" --role="roles/storage.admin"
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="serviceAccount:$SA_EMAIL" --role="roles/artifactregistry.writer"
 
 # 5. Create and download a JSON key for that service account
 gcloud iam service-accounts keys create gh-deployer-key.json \
